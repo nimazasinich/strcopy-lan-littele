@@ -1,0 +1,5 @@
+{
+  "name": "SmartCopy LAN",
+  "description": "Commercial-grade LAN application for copying movies to USB drives with mobile session binding.",
+  "requestFramePermissions": []
+}

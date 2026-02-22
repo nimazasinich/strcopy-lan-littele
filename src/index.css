@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;500;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Vazirmatn", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-filimo-orange: #f5ad42;
+  --color-filimo-dark: #151515;
+  --color-filimo-black: #000000;
+  --color-filimo-gray: #2a2a2a;
+}
+
+@layer base {
+  body {
+    @apply bg-filimo-black text-white font-sans;
+    direction: rtl;
+  }
+}
+
+@layer components {
+  .filimo-card {
+    @apply relative overflow-hidden rounded-xl transition-all duration-500 ease-out cursor-pointer hover:scale-105 hover:ring-2 hover:ring-filimo-orange shadow-2xl;
+  }
+  
+  .filimo-button {
+    @apply px-8 py-3 bg-filimo-orange text-black font-black rounded-full hover:bg-white transition-all duration-300 transform active:scale-95 shadow-lg;
+  }
+  
+  .filimo-button-outline {
+    @apply px-8 py-3 border-2 border-white text-white font-bold rounded-full hover:bg-white hover:text-black transition-all duration-300;
+  }
+
+  .filimo-input {
+    @apply bg-filimo-gray border-none rounded-full px-6 py-3 text-sm focus:ring-2 focus:ring-filimo-orange outline-none transition-all w-full;
+  }
+
+  .progress-container {
+    @apply w-full h-2 bg-gray-800 rounded-full overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full bg-gradient-to-r from-filimo-orange to-yellow-300 transition-all duration-500 rounded-full;
+  }
+
+  .glass-nav {
+    @apply bg-filimo-black/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50;
+  }
+
+  .category-pill {
+    @apply px-4 py-1.5 rounded-full bg-filimo-gray text-xs font-medium hover:bg-filimo-orange hover:text-black transition-all cursor-pointer whitespace-nowrap;
+  }
+
+  .category-pill.active {
+    @apply bg-filimo-orange text-black;
+  }
+}
+
+/* RTL Specifics */
+.rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #f5ad42;
+}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartCopy - Admin Dashboard</title>
+    <link rel="stylesheet" href="/src/index.css">
+  </head>
+  <body class="bg-netflix-black text-white">
+    <div id="app" class="min-h-screen flex flex-col">
+      <!-- Sidebar & Main -->
+      <div class="flex flex-grow">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-black border-r border-gray-800 p-6 hidden md:flex flex-col gap-8">
+          <h1 class="text-netflix-red text-2xl font-bold tracking-tighter">SMARTCOPY ADMIN</h1>
+          <nav class="flex flex-col gap-4">
+            <a href="#" class="flex items-center gap-3 text-white font-bold"><span class="w-2 h-2 bg-netflix-red rounded-full"></span> Dashboard</a>
+            <a href="#" class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors">Movies</a>
+            <a href="#" class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors">Queue</a>
+            <a href="#" class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors">Settings</a>
+          </nav>
+          
+          <div class="mt-auto p-4 bg-netflix-dark rounded-lg border border-gray-800">
+            <div class="text-xs text-gray-500 mb-1">Total Copied Today</div>
+            <div id="total-copied" class="text-xl font-bold text-netflix-red">0 GB</div>
+          </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-grow p-8">
+          <header class="flex justify-between items-center mb-12">
+            <div>
+              <h2 class="text-3xl font-bold">USB Monitor</h2>
+              <p class="text-gray-500">Real-time status of connected drives</p>
+            </div>
+            <div class="flex gap-6">
+              <!-- Health Stats -->
+              <div class="flex gap-4 text-xs">
+                <div class="flex flex-col items-center">
+                  <span class="text-gray-500 uppercase">CPU</span>
+                  <span id="health-cpu" class="font-bold text-netflix-red">0%</span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <span class="text-gray-500 uppercase">RAM</span>
+                  <span id="health-ram" class="font-bold text-netflix-red">0%</span>
+                </div>
+              </div>
+              <button id="refresh-usbs" class="netflix-button-secondary flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Refresh
+              </button>
+            </div>
+          </header>
+
+          <!-- USB Grid -->
+          <div id="usb-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+            <!-- USB Cards injected here -->
+          </div>
+
+          <!-- Active Queue -->
+          <section>
+            <h3 class="text-xl font-bold mb-6">Active Copy Queue</h3>
+            <div class="bg-netflix-dark rounded-xl border border-gray-800 overflow-hidden">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-black text-gray-500 uppercase text-xs">
+                  <tr>
+                    <th class="px-6 py-4">Movie</th>
+                    <th class="px-6 py-4">USB Drive</th>
+                    <th class="px-6 py-4">Progress</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="queue-table-body">
+                  <!-- Queue items injected here -->
+                </tbody>
+              </table>
+              <div id="empty-queue" class="p-12 text-center text-gray-500 hidden">
+                No active copy jobs
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+    <script type="module" src="/src/admin.ts"></script>
+  </body>
+</html>

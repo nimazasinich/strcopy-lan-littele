@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>اسمارت‌کپی - دنیای فیلم و سریال</title>
+    <link rel="stylesheet" href="/src/index.css">
+  </head>
+  <body class="bg-black text-white selection:bg-filimo-orange selection:text-black">
+    <div id="app" class="min-h-screen flex flex-col">
+      <!-- Navbar -->
+      <nav class="glass-nav px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-6">
+          <h1 class="text-filimo-orange text-2xl font-black tracking-tighter">SMARTCOPY</h1>
+          <div id="usb-info" class="hidden md:flex flex-col text-[10px] border-r border-white/10 pr-4">
+            <span id="usb-name" class="font-bold text-white/90">فلش ۳۲ گیگابایتی شما</span>
+            <span id="usb-space" class="text-white/40">۱۲ گیگابایت فضای خالی</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 flex-grow max-w-md mx-8">
+          <div class="relative w-full">
+            <input type="text" id="search-input" placeholder="جستجوی فیلم، سریال، بازیگر..." class="filimo-input pr-12">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute right-4 top-1/2 -translate-y-1/2 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="preview-mode-btn" class="text-[10px] bg-white/5 px-2 py-1 rounded hover:bg-white/10 transition-colors">پیش‌نمایش</button>
+        </div>
+      </nav>
+
+      <!-- Categories -->
+      <div id="categories-bar" class="px-4 py-4 flex gap-3 overflow-x-auto no-scrollbar bg-filimo-black/50 sticky top-[65px] z-40 backdrop-blur-sm">
+        <div class="category-pill active">همه فیلم‌ها</div>
+        <div class="category-pill">فیلم‌های جدید</div>
+        <div class="category-pill">سریال‌ها</div>
+        <div class="category-pill">اکشن</div>
+        <div class="category-pill">کمدی</div>
+        <div class="category-pill">درام</div>
+        <div class="category-pill">پرفروش‌ترین‌ها</div>
+      </div>
+
+      <!-- Main Content -->
+      <main id="main-content" class="flex-grow p-4 md:p-8">
+        <!-- Landing State -->
+        <div id="landing-state" class="flex flex-col items-center justify-center h-full py-20 text-center">
+          <div class="bg-filimo-dark p-10 rounded-3xl shadow-2xl border border-white/5 max-w-md">
+            <div class="mb-8 flex justify-center">
+              <div class="w-24 h-24 bg-filimo-orange rounded-full flex items-center justify-center animate-bounce shadow-[0_0_50px_rgba(245,173,66,0.3)]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                </svg>
+              </div>
+            </div>
+            <h2 class="text-3xl font-black mb-4">به اسمارت‌کپی خوش آمدید</h2>
+            <p class="text-white/50 mb-10 leading-relaxed">برای دسترسی به آرشیو فیلم و سریال، لطفاً کد QR روی مانیتور را اسکن کنید تا حافظه USB شما متصل شود.</p>
+            <div class="flex flex-col gap-4">
+              <div class="text-sm text-filimo-orange font-bold animate-pulse">منتظر اتصال حافظه جانبی...</div>
+              <button onclick="window.location.search = '?preview=true'" class="text-xs text-white/20 hover:text-white/40 transition-colors">مشاهده پیش‌نمایش محیط کاربری</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connected State -->
+        <div id="connected-state" class="hidden">
+          <div class="mb-12">
+            <div class="flex justify-between items-end mb-6">
+              <h2 class="text-2xl font-black border-r-4 border-filimo-orange pr-4">فیلم‌های پیشنهادی</h2>
+              <a href="#" class="text-filimo-orange text-sm font-bold hover:underline">مشاهده همه</a>
+            </div>
+            <div id="movie-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              <!-- Movies injected here -->
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Progress Overlay -->
+      <div id="progress-overlay" class="fixed bottom-0 left-0 right-0 bg-filimo-dark/95 backdrop-blur-2xl border-t border-white/10 p-6 transform translate-y-full transition-all duration-700 ease-in-out z-50 shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
+        <div class="max-w-4xl mx-auto flex items-center gap-6">
+          <div id="progress-poster" class="w-16 h-24 bg-white/5 rounded-xl flex-shrink-0 overflow-hidden shadow-xl ring-1 ring-white/10"></div>
+          <div class="flex-grow">
+            <div class="flex justify-between items-end mb-3">
+              <div class="flex flex-col">
+                <span class="text-[10px] text-filimo-orange font-black uppercase tracking-widest mb-1">در حال کپی به حافظه شما</span>
+                <span id="progress-title" class="text-lg font-black">نام فیلم در حال کپی</span>
+              </div>
+              <div class="flex flex-col items-end">
+                <span id="progress-percent" class="text-2xl font-black text-filimo-orange">۰٪</span>
+                <span id="progress-speed" class="text-[10px] text-white/30">۱۵ مگابایت بر ثانیه</span>
+              </div>
+            </div>
+            <div class="progress-container">
+              <div id="progress-bar" class="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Movie Modal -->
+      <div id="movie-modal" class="fixed inset-0 bg-black/95 z-[100] hidden items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-filimo-dark w-full max-w-5xl rounded-3xl overflow-hidden relative shadow-[0_0_100px_rgba(0,0,0,1)] border border-white/5">
+          <button id="close-modal" class="absolute top-6 right-6 text-white/50 hover:text-white z-50 bg-black/50 p-2 rounded-full backdrop-blur-md transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <div class="flex flex-col lg:flex-row">
+            <div id="modal-video" class="w-full lg:w-2/3 aspect-video bg-black relative group">
+              <!-- Video embed here -->
+              <div class="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all cursor-pointer">
+                <div class="w-20 h-20 bg-filimo-orange rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-black mr-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="p-8 lg:w-1/3 flex flex-col">
+              <div class="mb-6">
+                <h2 id="modal-title" class="text-3xl font-black mb-3">نام فیلم</h2>
+                <div class="flex items-center gap-3 flex-wrap">
+                  <span id="modal-year" class="text-white/40 text-sm">۲۰۲۴</span>
+                  <span id="modal-genre" class="bg-white/10 px-3 py-1 rounded-full text-[10px] font-bold">اکشن / علمی تخیلی</span>
+                  <div class="flex items-center gap-1 text-filimo-orange">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
+                    <span class="text-sm font-black">۴.۸</span>
+                  </div>
+                </div>
+              </div>
+              <p id="modal-desc" class="text-sm text-white/50 mb-8 leading-relaxed flex-grow">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است.</p>
+              <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl">
+                  <span class="text-xs text-white/40">حجم فایل</span>
+                  <span id="modal-size" class="text-lg font-black text-filimo-orange">۲.۴ گیگابایت</span>
+                </div>
+                <button id="add-to-queue" class="filimo-button w-full text-lg">افزودن به صف کپی</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/customer.ts"></script>
+  </body>
+</html>
+
