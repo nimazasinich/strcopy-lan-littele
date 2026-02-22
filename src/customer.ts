@@ -28,6 +28,8 @@ const modalTitle = document.getElementById('modal-title')!;
 const modalYear = document.getElementById('modal-year')!;
 const modalGenre = document.getElementById('modal-genre')!;
 const modalSize = document.getElementById('modal-size')!;
+const modalRating = document.getElementById('modal-rating')!;
+const modalDesc = document.getElementById('modal-desc')!;
 const modalVideo = document.getElementById('modal-video')!;
 const addToQueueBtn = document.getElementById('add-to-queue')!;
 const previewModeBtn = document.getElementById('preview-mode-btn')!;
@@ -78,9 +80,10 @@ function setupPreviewData() {
   usbSpace.innerText = toPersianDigits('۱۲.۵') + ' گیگابایت فضای خالی';
 }
 
-async function fetchMovies() {
+async function fetchMovies(query?: string) {
   try {
-    const res = await fetch('/api/movies');
+    const url = query ? `/api/movies?q=${encodeURIComponent(query)}` : '/api/movies';
+    const res = await fetch(url);
     currentMovies = await res.json();
     renderMovies(currentMovies);
   } catch (err) {
@@ -94,9 +97,9 @@ function renderMovies(movies: any[]) {
     const card = document.createElement('div');
     card.className = 'filimo-card aspect-[2/3] group';
     card.innerHTML = `
-      <img src="${movie.posterUrl}" alt="${movie.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+      <img src="${movie.poster_url || movie.posterUrl}" alt="${movie.persian_title || movie.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
       <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-4">
-        <h3 class="font-black text-lg mb-1">${movie.title}</h3>
+        <h3 class="font-black text-lg mb-1">${movie.persian_title || movie.title}</h3>
         <div class="flex justify-between items-center">
           <span class="text-[10px] text-white/60">${formatSize(movie.size)}</span>
           <div class="flex items-center gap-1 text-filimo-orange">
@@ -115,18 +118,24 @@ function renderMovies(movies: any[]) {
 
 function openMovieModal(movie: any) {
   selectedMovie = movie;
-  modalTitle.innerText = movie.title;
+  modalTitle.innerText = movie.persian_title || movie.title;
   modalYear.innerText = toPersianDigits(movie.year);
   modalGenre.innerText = movie.genre;
   modalSize.innerText = formatSize(movie.size);
+  modalRating.innerText = toPersianDigits(movie.rating || '۴.۵');
+  modalDesc.innerText = movie.description || 'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است.';
+  
   modalVideo.innerHTML = `
-    <img src="${movie.posterUrl}" class="w-full h-full object-cover opacity-40 blur-md">
-    <div class="absolute inset-0 flex items-center justify-center">
-       <div class="w-20 h-20 bg-filimo-orange rounded-full flex items-center justify-center shadow-2xl">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-black mr-1" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-       </div>
+    <img src="${movie.poster_url || movie.posterUrl}" class="w-full h-full object-cover opacity-40 blur-md">
+    <div class="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all cursor-pointer">
+      <div class="w-24 h-24 bg-filimo-orange rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(245,173,66,0.5)] transform group-hover:scale-110 transition-all duration-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-black mr-1" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+      </div>
+      <div class="absolute bottom-6 right-6 bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 text-[10px] font-black uppercase tracking-widest">
+        مشاهده تریلر
+      </div>
     </div>
   `;
   movieModal.classList.remove('hidden');
@@ -206,9 +215,10 @@ function pathBasename(path: string) {
 // Search functionality
 const searchInput = document.getElementById('search-input') as HTMLInputElement;
 searchInput.oninput = () => {
-  const query = searchInput.value.toLowerCase();
-  const filtered = currentMovies.filter(m => m.title.toLowerCase().includes(query) || m.genre.toLowerCase().includes(query));
-  renderMovies(filtered);
+  const query = searchInput.value.trim();
+  if (query.length >= 2 || query.length === 0) {
+    fetchMovies(query);
+  }
 };
 
 previewModeBtn.onclick = () => {

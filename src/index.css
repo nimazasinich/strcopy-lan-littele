@@ -14,6 +14,10 @@
     @apply bg-filimo-black text-white font-sans;
     direction: rtl;
   }
+  
+  * {
+    font-family: "Vazirmatn", sans-serif !important;
+  }
 }
 
 @layer components {
@@ -22,35 +26,43 @@
   }
   
   .filimo-button {
-    @apply px-8 py-3 bg-filimo-orange text-black font-black rounded-full hover:bg-white transition-all duration-300 transform active:scale-95 shadow-lg;
+    @apply px-8 py-4 bg-filimo-orange text-black font-black rounded-2xl hover:bg-white transition-all duration-300 transform active:scale-95 shadow-[0_10px_30px_rgba(245,173,66,0.3)] flex items-center justify-center gap-3;
+  }
+  
+  .filimo-button:hover {
+    @apply shadow-[0_15px_40px_rgba(245,173,66,0.5)];
   }
   
   .filimo-button-outline {
-    @apply px-8 py-3 border-2 border-white text-white font-bold rounded-full hover:bg-white hover:text-black transition-all duration-300;
+    @apply px-8 py-3 border-2 border-white/20 text-white font-bold rounded-2xl hover:bg-white hover:text-black transition-all duration-300;
   }
 
   .filimo-input {
-    @apply bg-filimo-gray border-none rounded-full px-6 py-3 text-sm focus:ring-2 focus:ring-filimo-orange outline-none transition-all w-full;
+    @apply bg-filimo-gray border-none rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-filimo-orange outline-none transition-all w-full placeholder:text-white/20;
   }
 
   .progress-container {
-    @apply w-full h-2 bg-gray-800 rounded-full overflow-hidden;
+    @apply w-full h-3 bg-gray-800 rounded-full overflow-hidden;
   }
 
   .progress-fill {
-    @apply h-full bg-gradient-to-r from-filimo-orange to-yellow-300 transition-all duration-500 rounded-full;
+    @apply h-full bg-gradient-to-r from-filimo-orange to-yellow-300 transition-all duration-500 rounded-full shadow-[0_0_15px_rgba(245,173,66,0.5)];
   }
 
   .glass-nav {
-    @apply bg-filimo-black/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50;
+    @apply bg-filimo-black/90 backdrop-blur-2xl border-b border-white/5 sticky top-0 z-50;
   }
 
   .category-pill {
-    @apply px-4 py-1.5 rounded-full bg-filimo-gray text-xs font-medium hover:bg-filimo-orange hover:text-black transition-all cursor-pointer whitespace-nowrap;
+    @apply px-5 py-2 rounded-xl bg-filimo-gray text-xs font-bold hover:bg-filimo-orange hover:text-black transition-all cursor-pointer whitespace-nowrap border border-white/5;
   }
 
   .category-pill.active {
-    @apply bg-filimo-orange text-black;
+    @apply bg-filimo-orange text-black border-transparent shadow-lg;
+  }
+  
+  .modal-glass {
+    @apply bg-filimo-dark/80 backdrop-blur-3xl border border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.8)];
   }
 }
 

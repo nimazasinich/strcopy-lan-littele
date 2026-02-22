@@ -4,9 +4,12 @@ import path from 'path';
 import { usbManager } from './usbManager';
 import logger from './logger';
 import { config } from '../config';
+import { db } from '../database/schema';
 
 export interface CopyJob {
   id: string;
+  movieId?: number;
+  userFingerprint?: string;
   sourceFilePath: string;
   destinationDrive: string;
   destinationPath: string;
@@ -45,7 +48,18 @@ class CopyEngine extends EventEmitter {
       return newJob;
     }
 
-    // 2. Disk Space Check
+    // 2. Path Validation (Security)
+    // Ensure destinationPath starts with the destinationDrive letter and doesn't escape it
+    const normalizedDest = path.normalize(job.destinationPath);
+    if (!normalizedDest.startsWith(job.destinationDrive)) {
+      newJob.status = 'failed';
+      newJob.error = 'Security Violation: Invalid destination path';
+      logger.error(`Security Alert: Attempted write outside USB drive ${job.destinationDrive} to ${job.destinationPath}`);
+      this.emit('jobFailed', newJob);
+      return newJob;
+    }
+
+    // 3. Disk Space Check
     const usb = usbManager.getUSBByDriveLetter(job.destinationDrive);
     if (!usb) {
       newJob.status = 'failed';
@@ -96,13 +110,11 @@ class CopyEngine extends EventEmitter {
           break;
         }
 
-        // 3. USB Removal Check
         const usb = usbManager.getUSBByDriveLetter(job.destinationDrive);
         if (!usb) {
           throw new Error('CRITICAL: USB drive disconnected during copy');
         }
 
-        // 4. Disk Full Simulation/Check
         if (usb.freeSpace < chunkSize && job.copied < job.size) {
           throw new Error('CRITICAL: Disk full during copy process');
         }
@@ -110,7 +122,6 @@ class CopyEngine extends EventEmitter {
         const bytesToCopy = Math.min(chunkSize, job.size - job.copied);
         job.copied += bytesToCopy;
         
-        // Update USB free space locally (simulation)
         usb.freeSpace -= bytesToCopy;
 
         this.emit('jobProgress', job);
@@ -121,6 +132,10 @@ class CopyEngine extends EventEmitter {
       if (job.status === 'copying') {
         job.status = 'completed';
         this.activeJobs.delete(job.id);
+        
+        // Update Database: Download Count and Transaction
+        this.logTransaction(job, 'success');
+        
         logger.info(`Job Completed: ${job.id}`);
         this.emit('jobCompleted', job);
       }
@@ -128,12 +143,31 @@ class CopyEngine extends EventEmitter {
       job.status = 'failed';
       job.error = error.message;
       this.activeJobs.delete(job.id);
+      
+      // Update Database: Failed Transaction
+      this.logTransaction(job, 'failed', error.message);
+      
       logger.error(`Job Failed: ${job.id} - Error: ${error.message}`);
       this.emit('jobFailed', job);
       this.emit('criticalError', { jobId: job.id, error: error.message });
     }
 
     this.processQueue();
+  }
+
+  private logTransaction(job: CopyJob, status: 'success' | 'failed', error?: string) {
+    try {
+      db.prepare(`
+        INSERT INTO transactions (usb_id, user_fingerprint, movie_id, total_size, status, error_message)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `).run(job.sessionToken, job.userFingerprint || null, job.movieId || null, job.size, status, error || null);
+
+      if (status === 'success' && job.movieId) {
+        db.prepare('UPDATE movies SET download_count = download_count + 1 WHERE id = ?').run(job.movieId);
+      }
+    } catch (err: any) {
+      logger.error(`Database Error logging transaction: ${err.message}`);
+    }
   }
 
   public cancelJob(jobId: string) {

@@ -10,7 +10,8 @@ import logger from './backend/services/logger';
 import { usbManager } from './backend/services/usbManager';
 import { mockUsbManager } from './backend/services/mockUsbManager';
 import { copyEngine } from './backend/services/copyEngine';
-import { initDatabase, db } from './backend/database/schema';
+import { initDatabase, db, queries } from './backend/database/schema';
+import { mockQueries } from './backend/database/mockDatabase';
 import { config } from './backend/config';
 
 async function startServer() {
@@ -19,13 +20,11 @@ async function startServer() {
   const wss = new WebSocketServer({ server });
   const PORT = config.port;
 
-  // Use mock manager in dev mode for immediate preview
   const activeUsbManager = config.isDevelopment ? mockUsbManager : usbManager;
+  const activeQueries = config.isDevelopment ? mockQueries : queries;
 
-  // Initialize Database
   initDatabase();
 
-  // Morgan HTTP Logging
   app.use(morgan('combined', {
     stream: { write: (message) => logger.info(message.trim()) }
   }));
@@ -81,7 +80,6 @@ async function startServer() {
     });
   }, 5000);
 
-  // Broadcast events from copyEngine
   copyEngine.on('jobAdded', (job) => broadcast({ type: 'JOB_UPDATE', job }));
   copyEngine.on('jobStarted', (job) => broadcast({ type: 'JOB_UPDATE', job }));
   copyEngine.on('jobProgress', (job) => broadcast({ type: 'JOB_UPDATE', job }));
@@ -89,7 +87,6 @@ async function startServer() {
   copyEngine.on('jobFailed', (job) => broadcast({ type: 'JOB_UPDATE', job }));
   copyEngine.on('jobCancelled', (job) => broadcast({ type: 'JOB_UPDATE', job }));
   
-  // Real-time Critical Error Alerts for Admin
   copyEngine.on('criticalError', (errorData) => {
     logger.error(`CRITICAL ALERT: ${errorData.error}`);
     broadcast({ type: 'CRITICAL_ERROR', ...errorData });
@@ -109,12 +106,59 @@ async function startServer() {
   });
 
   app.get('/api/movies', (req, res) => {
-    const movies = db.prepare('SELECT * FROM movies').all();
-    res.json(movies);
+    const { q } = req.query;
+    if (q) {
+      res.json(activeQueries.searchMovies(q as string));
+    } else {
+      const movies = db.prepare('SELECT * FROM movies').all();
+      res.json(movies);
+    }
+  });
+
+  app.get('/api/analytics', (req, res) => {
+    res.json({
+      topMovies: activeQueries.getTopMovies(),
+      daily: activeQueries.getDailyStats(),
+      monthly: activeQueries.getMonthStats()
+    });
+  });
+
+  app.post('/api/interact', (req, res) => {
+    const { fingerprint, movieId, genre, type, weight } = req.body;
+    if (!fingerprint || !type || weight === undefined) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    activeQueries.logInteraction(fingerprint, movieId || null, genre || null, type, weight);
+    res.json({ success: true });
+  });
+
+  app.get('/api/recommendations/:fingerprint', (req, res) => {
+    const { fingerprint } = req.params;
+    const recs = activeQueries.getRecommendations(fingerprint);
+    res.json(recs);
+  });
+
+  app.get('/api/history/:fingerprint', (req, res) => {
+    const { fingerprint } = req.params;
+    const history = activeQueries.getUserHistory(fingerprint);
+    res.json(history);
+  });
+
+  app.get('/api/admin/loyalty', (req, res) => {
+    const auth = req.headers.authorization;
+    const adminPass = db.prepare('SELECT value FROM settings WHERE key = ?').get('admin_password') as any;
+    
+    if (!auth || auth !== `Basic ${Buffer.from(`admin:${adminPass.value}`).toString('base64')}`) {
+      res.setHeader('WWW-Authenticate', 'Basic realm="SmartCopy Admin"');
+      return res.status(401).send('Authentication required');
+    }
+    
+    const loyalty = activeQueries.getLoyaltyReport();
+    res.json(loyalty);
   });
 
   app.post('/api/copy', (req, res) => {
-    const { movieId, sessionToken } = req.body;
+    const { movieId, sessionToken, userFingerprint } = req.body;
     const usb = activeUsbManager.getUSBByToken(sessionToken);
     if (!usb) return res.status(400).json({ error: 'Invalid session or USB disconnected' });
 
@@ -122,12 +166,20 @@ async function startServer() {
     if (!movie) return res.status(404).json({ error: 'Movie not found' });
 
     const job = copyEngine.addJob({
+      movieId: movie.id,
       sourceFilePath: movie.filepath,
       destinationDrive: usb.driveLetter,
       destinationPath: `${usb.driveLetter}\\Movies\\${path.basename(movie.filepath)}`,
       size: movie.size,
       sessionToken
     });
+
+    // Log copy interaction
+    if (userFingerprint) {
+      activeQueries.logInteraction(userFingerprint, movie.id, movie.genre, 'copy', 5);
+      // We also need to update the job to include the userFingerprint so copyEngine can log it in transactions
+      (job as any).userFingerprint = userFingerprint;
+    }
 
     res.json(job);
   });
@@ -146,7 +198,15 @@ async function startServer() {
     res.redirect(`/?token=${token}`);
   });
 
+  // Simple Admin Password Protection
   app.get('/admin', (req, res) => {
+    const auth = req.headers.authorization;
+    const adminPass = db.prepare('SELECT value FROM settings WHERE key = ?').get('admin_password') as any;
+    
+    if (!auth || auth !== `Basic ${Buffer.from(`admin:${adminPass.value}`).toString('base64')}`) {
+      res.setHeader('WWW-Authenticate', 'Basic realm="SmartCopy Admin"');
+      return res.status(401).send('Authentication required');
+    }
     res.sendFile(path.join(__dirname, 'admin.html'));
   });
 

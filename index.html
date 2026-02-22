@@ -100,44 +100,64 @@
 
       <!-- Movie Modal -->
       <div id="movie-modal" class="fixed inset-0 bg-black/95 z-[100] hidden items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-filimo-dark w-full max-w-5xl rounded-3xl overflow-hidden relative shadow-[0_0_100px_rgba(0,0,0,1)] border border-white/5">
-          <button id="close-modal" class="absolute top-6 right-6 text-white/50 hover:text-white z-50 bg-black/50 p-2 rounded-full backdrop-blur-md transition-all">
+        <div class="modal-glass w-full max-w-5xl rounded-[2.5rem] overflow-hidden relative">
+          <button id="close-modal" class="absolute top-8 right-8 text-white/40 hover:text-white z-50 bg-white/5 p-3 rounded-2xl backdrop-blur-md transition-all hover:bg-white/10">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
           <div class="flex flex-col lg:flex-row">
-            <div id="modal-video" class="w-full lg:w-2/3 aspect-video bg-black relative group">
+            <div id="modal-video" class="w-full lg:w-2/3 aspect-video bg-black relative group overflow-hidden">
               <!-- Video embed here -->
               <div class="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all cursor-pointer">
-                <div class="w-20 h-20 bg-filimo-orange rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-black mr-1" fill="currentColor" viewBox="0 0 24 24">
+                <div class="w-24 h-24 bg-filimo-orange rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(245,173,66,0.5)] transform group-hover:scale-110 transition-all duration-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-black mr-1" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 </div>
+                <div class="absolute bottom-6 right-6 bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 text-[10px] font-black uppercase tracking-widest">
+                  مشاهده تریلر
+                </div>
               </div>
             </div>
-            <div class="p-8 lg:w-1/3 flex flex-col">
-              <div class="mb-6">
-                <h2 id="modal-title" class="text-3xl font-black mb-3">نام فیلم</h2>
-                <div class="flex items-center gap-3 flex-wrap">
-                  <span id="modal-year" class="text-white/40 text-sm">۲۰۲۴</span>
-                  <span id="modal-genre" class="bg-white/10 px-3 py-1 rounded-full text-[10px] font-bold">اکشن / علمی تخیلی</span>
-                  <div class="flex items-center gap-1 text-filimo-orange">
+            <div class="p-10 lg:w-1/3 flex flex-col bg-gradient-to-b from-transparent to-black/20">
+              <div class="mb-8">
+                <h2 id="modal-title" class="text-4xl font-black mb-4 leading-tight">نام فیلم</h2>
+                <div class="flex items-center gap-4 flex-wrap">
+                  <span id="modal-year" class="text-white/40 text-sm font-bold">۲۰۲۴</span>
+                  <div class="w-1 h-1 bg-white/20 rounded-full"></div>
+                  <span id="modal-genre" class="text-filimo-orange text-xs font-black">اکشن / علمی تخیلی</span>
+                  <div class="w-1 h-1 bg-white/20 rounded-full"></div>
+                  <div class="flex items-center gap-1.5 text-yellow-400">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                     </svg>
-                    <span class="text-sm font-black">۴.۸</span>
+                    <span id="modal-rating" class="text-sm font-black">۴.۸</span>
                   </div>
                 </div>
               </div>
-              <p id="modal-desc" class="text-sm text-white/50 mb-8 leading-relaxed flex-grow">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است.</p>
-              <div class="flex flex-col gap-4">
-                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl">
-                  <span class="text-xs text-white/40">حجم فایل</span>
-                  <span id="modal-size" class="text-lg font-black text-filimo-orange">۲.۴ گیگابایت</span>
+              <div class="mb-10">
+                <h4 class="text-xs font-black text-white/30 uppercase tracking-widest mb-3">خلاصه داستان</h4>
+                <p id="modal-desc" class="text-sm text-white/60 leading-loose text-justify">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است.</p>
+              </div>
+              <div class="mt-auto flex flex-col gap-6">
+                <div class="flex justify-between items-center bg-white/5 p-5 rounded-3xl border border-white/5">
+                  <div class="flex flex-col">
+                    <span class="text-[10px] text-white/30 font-bold mb-1">حجم فایل</span>
+                    <span id="modal-size" class="text-xl font-black text-white">۲.۴ گیگابایت</span>
+                  </div>
+                  <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                  </div>
                 </div>
-                <button id="add-to-queue" class="filimo-button w-full text-lg">افزودن به صف کپی</button>
+                <button id="add-to-queue" class="filimo-button w-full group">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform group-hover:translate-y-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+                  </svg>
+                  افزودن به صف کپی
+                </button>
               </div>
             </div>
           </div>
